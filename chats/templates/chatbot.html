@@ -64,7 +64,7 @@
     </style>
 </head>
 <body>
-    <div class="bg-gray-100 flex flex-col h-screen">
+    <div class="bg-gray-800 flex flex-col h-screen">
         <div class="flex-1 flex flex-col w-full p-4">
 
             <div class="flex items-center justify-center space-x-6 mb-8">
@@ -75,15 +75,16 @@
             
                 <!-- Heading Section -->
                 <div class="text-center">
-                    <h1 class="text-3xl md:text-4xl font-semibold text-gray-800 tracking-wide">P & B Chatbot</h1>
-                    <p class="mt-2 text-gray-600 text-lg font-medium">Your Personal Assistant</p>
+                    <h1 class="text-3xl md:text-4xl font-semibold text-white tracking-wide">P & B Chatbot</h1>
+                    <p class="mt-2 text-gray-200 text-lg font-medium">Your Personal Assistant</p>
                 </div>
             </div>
             
 
-            <div id="chatbox" class="flex-1 border border-gray-300 p-4 overflow-y-auto rounded-lg bg-gray-50 w-full" style="max-height: calc(100vh - 120px); text-align:right;">
+            <div id="chatbox" class="flex-1 border border-gray-100 p-4 overflow-y-auto rounded-lg bg-gray-100 w-full" style="max-height: calc(100vh - 120px); text-align: right;">
                 <!-- Chat messages will be appended here -->
             </div>
+
             <div class="mt-4 flex">
                 <input type="text" id="user_input" class="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
                 <button id="send_btn" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600">
