@@ -1,33 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://kit.fontawesome.com/af6abba921.js" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script>
-        function getCookie(name) {
-            return document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1];
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="text/javascript">
+        // Function to get CSRF token from the meta tag
+        function getCSRFToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
         
         $(document).ready(function() {
-            const csrftoken = getCookie('csrftoken');
-
+            const csrftoken = getCSRFToken();  // Get CSRF token from meta tag
+    
             $('#chatbox').append('<div class="text-left mb-2 flex items-center justify-between w-full p-3 bg-gray-200 rounded-lg">' +
                 '<span class="text-gray-800 break-words flex-1">I am your personal assistant. How can I help you?</span> </div>');
-
+    
             $('#send_btn').click(function() {
                 var userInput = $('#user_input').val().trim();
                 if (!userInput) return;
                 $('#chatbox').append('<div class="text-right mb-2 p-3 bg-blue-500 text-white rounded-lg w-full">' + userInput + '</div>');
-                
+    
                 $.ajax({
                     type: "POST",
                     url: "{% url 'chatbot_response' %}",
                     data: { user_input: userInput },
-                    headers: { 'X-CSRFToken': csrftoken },
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);  // Send CSRF token with the request
+                    },
                     success: function(data) {
                         $('#chatbox').append('<div class="text-left mb-2 flex items-center justify-between w-full p-3 bg-gray-200 rounded-lg">' +
                             '<span class="text-gray-800 break-words flex-1">' + data.reply + '</span>' +
@@ -41,7 +47,7 @@
                 });
             });
         });
-
+    
         function copyToClipboard(icon) {
             var text = $(icon).prev().text();
             navigator.clipboard.writeText(text).then(() => {
@@ -52,7 +58,8 @@
             });
         }
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+
     <style>
         body {
             font-family: 'Poppins', sans-serif;
