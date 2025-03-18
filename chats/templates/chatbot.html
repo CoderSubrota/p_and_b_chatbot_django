@@ -24,7 +24,7 @@
             $('#send_btn').click(function() {
                 var userInput = $('#user_input').val().trim();
                 if (!userInput) return;
-                $('#chatbox').append('<div class="text-right mb-2 p-3 bg-blue-500 text-white rounded-lg w-fit self-end">' + userInput + '</div>');
+                $('#chatbox').append('<div class="text-left mb-2 p-3 bg-blue-500 text-white rounded-lg w-fit self-end">' + userInput + '</div>');
     
                 $.ajax({
                     type: "POST",
