@@ -6,6 +6,20 @@
         #body{
             font-family: "Parkinsans", sans-serif;
         }
+        .loader {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4a90e2;
+            position: relative;
+            animation: flash 0.5s ease-out infinite alternate;
+        }
+
+        @keyframes flash {
+            0% { background-color: #4a90e288; box-shadow: 20px 0 #4a90e288, -20px 0 #4a90e2; }
+            50% { background-color: #4a90e2; box-shadow: 20px 0 #4a90e288, -20px 0 #4a90e288; }
+            100% { background-color: #4a90e288; box-shadow: 20px 0 #4a90e2, -20px 0 #4a90e288; }
+        }
     </style>
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta charset="UTF-8">
@@ -15,17 +29,26 @@
         function getCSRFToken() {
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
-        
+
         $(document).ready(function() {
             const csrftoken = getCSRFToken();
             $('#chatbox').append('<div class="text-left mb-2 flex items-center w-fit p-3 bg-gray-200 rounded-lg">' +
                 '<span class="text-gray-800 break-words flex-1">I am your personal assistant. How can I help you?</span></div>');
-    
+
             $('#send_btn').click(function() {
                 var userInput = $('#user_input').val().trim();
                 if (!userInput) return;
+
+                // Display user input
                 $('#chatbox').append('<div class="text-left mb-2 p-3 bg-blue-500 text-white rounded-lg w-fit self-end">' + userInput + '</div>');
-    
+
+                // Display processing message
+                $('#chatbox').append('<div id="processing_message" class="text-left ms-2 mb-2 p-3  rounded-lg w-fit">' +
+                    ' <div class="loader inline-block ml-2"></div>' +
+                    '</div>');
+                $('#user_input').val('').css('height', 'auto');
+                $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+
                 $.ajax({
                     type: "POST",
                     url: "{% url 'chatbot_response' %}",
@@ -34,10 +57,9 @@
                         xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     },
                     success: function(data) {
-                        $('#chatbox').append('<div class="text-left mb-2 flex items-center w-fit p-3 bg-gray-200 rounded-lg">' +
-                            '<span class="text-gray-800 break-words flex-1">' + data.reply + '</span>' +
-                            '<i class="fa-regular fa-copy ml-2 cursor-pointer text-gray-500" onclick="copyToClipboard(this)"></i></div>');
-                        $('#user_input').val('').css('height', 'auto');
+                        // Replace processing message with the chatbot's response
+                        $('#processing_message').replaceWith('<div class="text-left mb-2 flex items-center w-fit p-3 bg-gray-200 rounded-lg">' +
+                            '<span class="text-gray-800 break-words flex-1">' + data.reply + '</span> </div> ' + '<i class="fa-regular fa-copy ml-2 ms-23 my-2 cursor-pointer text-gray-500" onclick="copyToClipboard(this)"></i>');
                         $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
                     },
                     error: function(xhr, status, error) {
@@ -45,13 +67,14 @@
                     }
                 });
             });
-    
+
             $('#user_input').on('input', function() {
-                this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
+                this.style.height =  '160px'; 
+                this.style.overflowY = 'auto'; 
             });
+            
         });
-    
+
         function copyToClipboard(icon) {
             var text = $(icon).prev().text();
             navigator.clipboard.writeText(text).then(() => {
