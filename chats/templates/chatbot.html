@@ -2,46 +2,53 @@
 <html lang="en">
 <head>
     {% include "cdn.html" %}
+    <style>
+        #body{
+            font-family: "Parkinsans", sans-serif;
+        }
+    </style>
     <meta name="csrf-token" content="{{ csrf_token }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>P & B Chatbot</title>
-
-    <script type="text/javascript">
-        // Function to get CSRF token from the meta tag
+    <script>
         function getCSRFToken() {
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         }
         
         $(document).ready(function() {
-            const csrftoken = getCSRFToken();  // Get CSRF token from meta tag
-    
-            $('#chatbox').append('<div class="text-left mb-2 flex items-center justify-between w-fit p-3 bg-gray-200 rounded-lg">' +
-                '<span class="text-gray-800 break-words flex-1">I am your personal assistant. How can I help you?</span> </div>');
+            const csrftoken = getCSRFToken();
+            $('#chatbox').append('<div class="text-left mb-2 flex items-center w-fit p-3 bg-gray-200 rounded-lg">' +
+                '<span class="text-gray-800 break-words flex-1">I am your personal assistant. How can I help you?</span></div>');
     
             $('#send_btn').click(function() {
                 var userInput = $('#user_input').val().trim();
                 if (!userInput) return;
-                $('#chatbox').append('<div class="text-right mb-2 p-3 bg-blue-500 text-white rounded-lg w-fit">' + userInput + '</div>');
+                $('#chatbox').append('<div class="text-right mb-2 p-3 bg-blue-500 text-white rounded-lg w-fit self-end">' + userInput + '</div>');
     
                 $.ajax({
                     type: "POST",
                     url: "{% url 'chatbot_response' %}",
                     data: { user_input: userInput },
                     beforeSend: function(xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrftoken);  // Send CSRF token with the request
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
                     },
                     success: function(data) {
-                        $('#chatbox').append('<div class="text-left mb-2 flex items-center justify-between w-fit p-3 bg-gray-200 rounded-lg">' +
+                        $('#chatbox').append('<div class="text-left mb-2 flex items-center w-fit p-3 bg-gray-200 rounded-lg">' +
                             '<span class="text-gray-800 break-words flex-1">' + data.reply + '</span>' +
                             '<i class="fa-regular fa-copy ml-2 cursor-pointer text-gray-500" onclick="copyToClipboard(this)"></i></div>');
-                        $('#user_input').val('');
+                        $('#user_input').val('').css('height', 'auto');
                         $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
                     },
                     error: function(xhr, status, error) {
                         console.error("Error: " + error);
                     }
                 });
+            });
+    
+            $('#user_input').on('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
             });
         });
     
@@ -50,47 +57,27 @@
             navigator.clipboard.writeText(text).then(() => {
                 $(icon).removeClass('fa-copy').addClass('fa-solid fa-check text-green-500');
                 setTimeout(() => {
-                    $(icon).removeClass('fa-solid fa-check  text-green-500').addClass('fa-copy');
+                    $(icon).removeClass('fa-solid fa-check text-green-500').addClass('fa-copy');
                 }, 2000);
             });
         }
     </script>
-    
-
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-    </style>
 </head>
-<body>
-    <div class="bg-gray-800 flex flex-col h-screen">
-        <div class="flex-1 flex flex-col w-full p-4">
-
-            <div class="flex items-center justify-center space-x-6 mb-8">
-                <!-- Logo Section -->
-                <div class="flex justify-center items-center">
-                    <img src="https://i.ibb.co.com/6c8Jd12f/Gold-Luxury-Initial-Logo.png" alt="logo" class="h-32 w-32  rounded-full shadow-xl border-4 border-gold-500"/>
-                </div>
-            
-                <!-- Heading Section -->
-                <div class="text-center">
-                    <h1 class="text-3xl md:text-4xl font-semibold text-white tracking-wide">P & B Chatbot</h1>
-                    <p class="mt-2 text-gray-200 text-lg font-medium">Your Personal Assistant</p>
-                </div>
-            </div>
-            
-
-            <div id="chatbox" class="flex-1 border border-gray-100 p-4 overflow-y-auto rounded-lg bg-gray-100 w-full" style="max-height: calc(100vh - 120px); text-align: right;">
-                <!-- Chat messages will be appended here -->
-            </div>
-
-            <div class="mt-4 flex">
-                <input type="text" id="user_input" class="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your message...">
-                <button id="send_btn" class="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </div>
+<body id="body" class="bg-gray-800 font-poppins flex flex-col h-screen">
+    <div class="flex-1 flex flex-col w-full p-4 max-w-4xl mx-auto">
+        <div class="flex flex-col items-center text-center mb-8">
+            <a href="https://mern-project-portfolio.netlify.app/" target="_blank" rel="noopener noreferrer">
+                <img src="https://i.ibb.co.com/6c8Jd12f/Gold-Luxury-Initial-Logo.png" alt="logo" class="h-24 w-24 rounded-full shadow-xl border-4 border-yellow-500"/>
+            </a>
+            <h1 class="text-2xl md:text-3xl font-semibold text-white mt-4">P & B Chatbot</h1>
+            <p class="text-gray-300 text-lg">Your Personal Assistant</p>
+        </div>
+        <div id="chatbox" class="flex-1 border border-gray-300 p-4 overflow-y-auto rounded-lg bg-gray-100 w-full max-h-[60vh] sm:max-h-[70vh]"></div>
+        <div class="mt-4 flex w-full items-center gap-3 p-2 bg-white border border-gray-300 rounded-lg shadow-md">
+            <textarea id="user_input" class="flex-1 p-2 bg-transparent focus:outline-none text-gray-800 resize-none overflow-hidden" placeholder="Send a message..."></textarea>
+            <button id="send_btn" class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-600 flex items-center justify-center w-10 h-10">
+                <i class="fa-solid fa-paper-plane text-lg"></i>
+            </button>
         </div>
     </div>
 </body>
